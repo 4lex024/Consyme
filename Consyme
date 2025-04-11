@@ -1,0 +1,460 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "consume Script",
+    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+    LoadingTitle = "4lex_024",
+    LoadingSubtitle = "by 4lex_024",
+    Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+ 
+    DisableRayfieldPrompts = false,
+    DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+ 
+    ConfigurationSaving = {
+       Enabled = false,
+       FolderName = nil, -- Create a custom folder for your hub/game
+       FileName = "Tes aja"
+    },
+ 
+    Discord = {
+       Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+       Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+    },
+ 
+    KeySystem = false, -- Set this to true to use our key system
+    KeySettings = {
+       Title = "Consume Script",
+       Subtitle = "Key System",
+       Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+       FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+       SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+       Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+    }
+ })
+
+ local HomeTab = Window:CreateTab("🏠 HOME", nil) -- Title, Image
+ local MainSection = HomeTab:CreateSection("Main")
+
+ Rayfield:Notify({
+    Title = "You Executed The Script",
+    Content = "very good gui",
+    Duration = 5,
+    Image = nil,
+    Actions = { -- Notification Buttons
+      Ignore = {
+         Name = "Okay!",
+         Callback = function()
+         print("The user tapped Okay!")
+      end
+   },
+},
+ })
+
+ local NoclipConnection
+ local NoclipEnabled = false
+ 
+ local Toggle = HomeTab:CreateToggle({
+     Name = "Noclip",
+     CurrentValue = false,
+     Flag = "Toggle1",
+     Callback = function(Value)
+         NoclipEnabled = Value
+ 
+         if NoclipEnabled then
+             NoclipConnection = game:GetService("RunService").Stepped:Connect(function()
+                 for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                     if v:IsA("BasePart") and v.CanCollide == true then
+                         v.CanCollide = false
+                     end
+                 end
+             end)
+         else
+             if NoclipConnection then
+                 NoclipConnection:Disconnect()
+                 NoclipConnection = nil
+             end
+ 
+             -- Reset CanCollide ke true saat noclip dimatikan
+             for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                 if v:IsA("BasePart") then
+                     v.CanCollide = true
+                 end
+             end
+         end
+     end,
+ })
+
+ local ItemTab = Window:CreateTab("📦 Item", nil) -- Title, Image
+ local MainSection = ItemTab:CreateSection("Main")
+
+ -- ESP Seeds 
+ local ESPConnection = nil
+ local ESPEnabled = false
+ 
+ local function AddESP(part)
+     if part:FindFirstChild("ESP") then return end
+ 
+     local adorn = Instance.new("BoxHandleAdornment")
+     adorn.Name = "ESP"
+     adorn.Adornee = part
+     adorn.Parent = part
+     adorn.Size = part.Size
+     adorn.ZIndex = 0
+     adorn.AlwaysOnTop = true
+     adorn.Color3 = Color3.fromRGB(0, 255, 0) -- Warna ESP
+     adorn.Transparency = 0.5 -- Transparan kotak
+ end
+ 
+ local Toggle = ItemTab:CreateToggle({
+     Name = "Esp seeds",
+     CurrentValue = false,
+     Flag = "Toggle1",
+     Callback = function(Value)
+         ESPEnabled = Value
+ 
+         if ESPEnabled then
+             ESPConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                 for _, v in pairs(workspace:GetChildren()) do
+                     if v:IsA("BasePart") and v.Name == "Seeds" then
+                         AddESP(v)
+                     end
+                 end
+             end)
+         else
+             if ESPConnection then
+                 ESPConnection:Disconnect()
+                 ESPConnection = nil
+             end
+ 
+             for _, v in pairs(workspace:GetChildren()) do
+                 if v:IsA("BasePart") and v:FindFirstChild("ESP") then
+                     v.ESP:Destroy()
+                 end
+             end
+         end
+     end,
+ })
+ 
+ --ESP Battery
+ local ESPConnection = nil
+ local ESPEnabled = false
+ 
+ local function AddESP(part)
+     if part:FindFirstChild("ESP") then return end
+ 
+     local adorn = Instance.new("BoxHandleAdornment")
+     adorn.Name = "ESP"
+     adorn.Adornee = part
+     adorn.Parent = part
+     adorn.Size = part.Size
+     adorn.ZIndex = 0
+     adorn.AlwaysOnTop = true
+     adorn.Color3 = Color3.fromRGB(0, 0, 255) -- Warna Biru
+     adorn.Transparency = 0.5 -- Transparansi kotak ESP
+ end
+ 
+ local Toggle = ItemTab:CreateToggle({
+     Name = "ESP Battery",
+     CurrentValue = false,
+     Flag = "Toggle1",
+     Callback = function(Value)
+         ESPEnabled = Value
+ 
+         if ESPEnabled then
+             ESPConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                 for _, v in pairs(workspace:GetChildren()) do
+                     if v:IsA("BasePart") and v.Name == "Battery" then
+                         AddESP(v)
+                     end
+                 end
+             end)
+         else
+             if ESPConnection then
+                 ESPConnection:Disconnect()
+                 ESPConnection = nil
+             end
+ 
+             for _, v in pairs(workspace:GetChildren()) do
+                 if v:IsA("BasePart") and v:FindFirstChild("ESP") then
+                     v.ESP:Destroy()
+                 end
+             end
+         end
+     end,
+ })
+ 
+ --ESP Jerry Can
+ local ESPConnection = nil
+ local ESPEnabled = false
+ 
+ local function AddESP(part)
+     if part:FindFirstChild("ESP") then return end
+ 
+     local adorn = Instance.new("BoxHandleAdornment")
+     adorn.Name = "ESP"
+     adorn.Adornee = part
+     adorn.Parent = part
+     adorn.Size = part.Size
+     adorn.ZIndex = 0
+     adorn.AlwaysOnTop = true
+     adorn.Color3 = Color3.fromRGB(255, 165, 0) -- Warna Oren
+     adorn.Transparency = 0.5 -- Transparansi kotak ESP
+ end
+ 
+ local Toggle = ItemTab:CreateToggle({
+     Name = "ESP Jerry Can",
+     CurrentValue = false,
+     Flag = "Toggle1",
+     Callback = function(Value)
+         ESPEnabled = Value
+ 
+         if ESPEnabled then
+             ESPConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                 for _, v in pairs(workspace:GetChildren()) do
+                     if v:IsA("BasePart") and v.Name == "Jerry Can" then
+                         AddESP(v)
+                     end
+                 end
+             end)
+         else
+             if ESPConnection then
+                 ESPConnection:Disconnect()
+                 ESPConnection = nil
+             end
+ 
+             for _, v in pairs(workspace:GetChildren()) do
+                 if v:IsA("BasePart") and v:FindFirstChild("ESP") then
+                     v.ESP:Destroy()
+                 end
+             end
+         end
+     end,
+ })
+
+ --ESP Medkit
+local ESPConnection = nil
+local ESPEnabled = false
+
+local function AddESP(part)
+    if part:FindFirstChild("ESP") then return end
+
+    local adorn = Instance.new("BoxHandleAdornment")
+    adorn.Name = "ESP"
+    adorn.Adornee = part
+    adorn.Parent = part
+    adorn.Size = part.Size
+    adorn.ZIndex = 0
+    adorn.AlwaysOnTop = true
+    adorn.Color3 = Color3.fromRGB(255, 105, 180) -- Warna Merah Muda (Pink)
+    adorn.Transparency = 0.5 -- Transparansi kotak ESP
+end
+
+local Toggle = ItemTab:CreateToggle({
+    Name = "ESP Medkit",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        ESPEnabled = Value
+
+        if ESPEnabled then
+            ESPConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                for _, v in pairs(workspace:GetChildren()) do
+                    if v:IsA("BasePart") and v.Name == "Medkit" then
+                        AddESP(v)
+                    end
+                end
+            end)
+        else
+            if ESPConnection then
+                ESPConnection:Disconnect()
+                ESPConnection = nil
+            end
+
+            for _, v in pairs(workspace:GetChildren()) do
+                if v:IsA("BasePart") and v:FindFirstChild("ESP") then
+                    v.ESP:Destroy()
+                end
+            end
+        end
+    end,
+})
+
+--ESP Ayam
+local ESPChicken = nil
+local ESPEnabled = false
+
+local function AddESP(target)
+    if target:FindFirstChild("HighlightESP") then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "HighlightESP"
+    highlight.FillColor = Color3.fromRGB(255, 255, 0) -- Warna Kuning
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Warna Outline Putih
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.Adornee = target
+    highlight.Parent = target
+end
+
+local Toggle = ItemTab:CreateToggle({
+    Name = "ESP Chicken",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        ESPEnabled = Value
+
+        if ESPEnabled then
+            ESPChicken = game:GetService("RunService").RenderStepped:Connect(function()
+                local chickens = workspace:FindFirstChild("Chickens")
+                if chickens then
+                    local models = chickens:FindFirstChild("ChickenModels")
+                    if models then
+                        local spawned = models:FindFirstChild("Spawned")
+                        if spawned then
+                            for _, chicken in pairs(spawned:GetChildren()) do
+                                if chicken:IsA("Model") and chicken:FindFirstChild("HumanoidRootPart") then
+                                    AddESP(chicken)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        else
+            if ESPChicken then
+                ESPChicken:Disconnect()
+                ESPChicken = nil
+            end
+
+            local chickens = workspace:FindFirstChild("Chickens")
+            if chickens then
+                local models = chickens:FindFirstChild("ChickenModels")
+                if models then
+                    local spawned = models:FindFirstChild("Spawned")
+                    if spawned then
+                        for _, chicken in pairs(spawned:GetChildren()) do
+                            if chicken:FindFirstChild("HighlightESP") then
+                                chicken.HighlightESP:Destroy()
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end,
+})
+
+local EnemyTab = Window:CreateTab("☠️ ENEMY", nil) -- Title, Image
+local MainSection = EnemyTab:CreateSection("Main")
+
+--ESP Boss
+local ESPBoss = nil
+local ESPEnabled = false
+
+local function AddESP(target)
+    if target:FindFirstChild("HighlightESP") then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "HighlightESP"
+    highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Warna Merah
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Warna Putih
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.Adornee = target
+    highlight.Parent = target
+end
+
+local Toggle = EnemyTab:CreateToggle({
+    Name = "ESP Boss",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        ESPEnabled = Value
+
+        if ESPEnabled then
+            ESPBoss = game:GetService("RunService").RenderStepped:Connect(function()
+                local boss = workspace:FindFirstChild("Boss")
+                if boss then
+                    local exports = boss:FindFirstChild("BossExports")
+                    if exports then
+                        local model = exports:FindFirstChild("MainSmlik")
+                        if model then
+                            AddESP(model)
+                        end
+                    end
+                end
+            end)
+        else
+            if ESPBoss then
+                ESPBoss:Disconnect()
+                ESPBoss = nil
+            end
+
+            local boss = workspace:FindFirstChild("Boss")
+            if boss then
+                local exports = boss:FindFirstChild("BossExports")
+                if exports then
+                    local model = exports:FindFirstChild("MainSmlik")
+                    if model and model:FindFirstChild("HighlightESP") then
+                        model.HighlightESP:Destroy()
+                    end
+                end
+            end
+        end
+    end,
+})
+
+--ESP Crawler
+local ESPCrawler = nil
+local ESPEnabled = false
+
+local function AddESP(target)
+    if target:FindFirstChild("HighlightESP") then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "HighlightESP"
+    highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Warna Merah
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Outline Putih
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.Adornee = target
+    highlight.Parent = target
+end
+
+local Toggle = EnemyTab:CreateToggle({
+    Name = "ESP Crawlers",
+    CurrentValue = false,
+    Flag = "ToggleCrawlerESP",
+    Callback = function(Value)
+        ESPEnabled = Value
+
+        if ESPEnabled then
+            ESPCrawler = game:GetService("RunService").RenderStepped:Connect(function()
+                local crawlers = workspace:FindFirstChild("Crawlers")
+                if crawlers then
+                    for _, crawler in pairs(crawlers:GetChildren()) do
+                        if crawler:IsA("Model") and crawler:FindFirstChild("HumanoidRootPart") then
+                            AddESP(crawler)
+                        end
+                    end
+                end
+            end)
+        else
+            if ESPCrawler then
+                ESPCrawler:Disconnect()
+                ESPCrawler = nil
+            end
+
+            local crawlers = workspace:FindFirstChild("Crawlers")
+            if crawlers then
+                for _, crawler in pairs(crawlers:GetChildren()) do
+                    if crawler:FindFirstChild("HighlightESP") then
+                        crawler.HighlightESP:Destroy()
+                    end
+                end
+            end
+        end
+    end,
+})
