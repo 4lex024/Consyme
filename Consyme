@@ -385,6 +385,7 @@ local Toggle = MainTab:CreateToggle({
             -- Daftar lokasi yang ingin diperiksa
             local locations = {
                 "Map.chris.Gifts",
+				"Map.Christmas.Gifts",
                 "Map.CHRIs.Gifts"
             }
 
