@@ -528,3 +528,61 @@ local Toggle = MainTab:CreateToggle({
         end
     end,
 })
+
+local Toggle = MainTab:CreateToggle({
+    Name = "ESP Monster (Red)",
+    CurrentValue = false,
+    Flag = "Monster_ESP_Red",
+    Callback = function(Value)
+        _G.MonsterESP_Active = Value
+        
+        -- Fungsi untuk menghapus Highlight Monster
+        local function clearESP()
+            for _, v in pairs(game.Workspace:GetDescendants()) do
+                if v.Name == "Monster_Highlight" then
+                    v:Destroy()
+                end
+            end
+        end
+
+        if _G.MonsterESP_Active then
+            clearESP() -- Bersihkan sisa lama
+
+            -- Mengakses lokasi spesifik: workspace.Map.Subway.Interaction.Monster
+            local success, targetLocation = pcall(function()
+                return game.Workspace.Map.Subway.Interaction.Monster
+            end)
+
+            if success and targetLocation then
+                -- Monster bisa berupa folder yang berisi banyak monster, atau satu model tunggal
+                local function applyESP(obj)
+                    if obj:IsA("Model") or obj:IsA("BasePart") then
+                        local highlight = Instance.new("Highlight")
+                        highlight.Name = "Monster_Highlight"
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0) -- WARNA MERAH
+                        highlight.FillTransparency = 0.3 -- Lebih pekat agar terlihat solid
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        highlight.OutlineTransparency = 0
+                        highlight.Adornee = obj
+                        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        highlight.Parent = obj
+                    end
+                end
+
+                -- Jika lokasi tersebut adalah Folder/Model berisi banyak bagian
+                if #targetLocation:GetChildren() > 0 then
+                    for _, child in pairs(targetLocation:GetChildren()) do
+                        applyESP(child)
+                    end
+                else
+                    -- Jika objek 'Monster' itu sendiri adalah targetnya
+                    applyESP(targetLocation)
+                end
+            else
+                warn("Lokasi Monster di Subway tidak ditemukan!")
+            end
+        else
+            clearESP()
+        end
+    end,
+})
