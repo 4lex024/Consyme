@@ -364,13 +364,13 @@ local Toggle = MainTab:CreateToggle({
 })
 
 local Toggle = MainTab:CreateToggle({
-    Name = "ESP Item (Highlight Green)",
+    Name = "ESP Item (Gifts)",
     CurrentValue = false,
     Flag = "Gift_Highlight_ESP",
     Callback = function(Value)
         _G.GiftESP_Active = Value
         
-        -- Fungsi untuk menghapus Highlight
+        -- Fungsi untuk menghapus Highlight agar tidak menumpuk
         local function clearESP()
             for _, v in pairs(game.Workspace:GetDescendants()) do
                 if v.Name == "Gift_Highlight" then
@@ -380,30 +380,40 @@ local Toggle = MainTab:CreateToggle({
         end
 
         if _G.GiftESP_Active then
-            clearESP() -- Bersihkan sisa lama
+            clearESP() 
 
-            -- Mengakses lokasi spesifik: workspace.Map.chris.Gifts
-            local success, targetFolder = pcall(function()
-                return game.Workspace.Map.chris.Gifts
-            end)
+            -- Daftar lokasi yang ingin diperiksa
+            local locations = {
+                "Map.chris.Gifts",
+                "Map.CHRIs.Gifts"
+            }
 
-            if success and targetFolder then
-                for _, gift in pairs(targetFolder:GetChildren()) do
-                    -- Pastikan objek adalah Model atau Part
-                    if gift:IsA("Model") or gift:IsA("BasePart") then
-                        local highlight = Instance.new("Highlight")
-                        highlight.Name = "Gift_Highlight"
-                        highlight.FillColor = Color3.fromRGB(0, 255, 0) -- Warna Hijau
-                        highlight.FillTransparency = 0.5 -- Transparansi isi
-                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Garis tepi putih
-                        highlight.OutlineTransparency = 0
-                        highlight.Adornee = gift
-                        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Tembus tembok
-                        highlight.Parent = gift
+            for _, path in pairs(locations) do
+                -- Memisahkan string path menjadi bagian-bagian untuk dicheck satu per satu
+                local success, targetFolder = pcall(function()
+                    local current = game.Workspace
+                    for folderName in path:gmatch("[^%.]+") do
+                        current = current:FindFirstChild(folderName)
                     end
+                    return current
+                end)
+
+                if success and targetFolder and targetFolder:IsA("Folder") then
+                    for _, gift in pairs(targetFolder:GetChildren()) do
+                        if gift:IsA("Model") or gift:IsA("BasePart") then
+                            local highlight = Instance.new("Highlight")
+                            highlight.Name = "Gift_Highlight"
+                            highlight.FillColor = Color3.fromRGB(0, 255, 0) -- Hijau
+                            highlight.FillTransparency = 0.5
+                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                            highlight.OutlineTransparency = 0
+                            highlight.Adornee = gift
+                            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            highlight.Parent = gift
+                        end
+                    end
+                    print("Berhasil memasang ESP di: " .. path)
                 end
-            else
-                warn("Lokasi workspace.Map.chris.Gifts tidak ditemukan!")
             end
         else
             clearESP()
