@@ -39,311 +39,167 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("Home", 4483362458) 
 
--- ESP Bonnie Toggle
-local Toggle = MainTab:CreateToggle({
-	Name = "ESP Bonnie (Merah)",
-	CurrentValue = false,
-	Flag = "ToggleBonnieESP",
-	Callback = function(Value)
-		ESPBonnieEnabled = Value
+-- Daftar semua animatronics dalam satu tabel
+local animatronicsNames = {"Bonnie", "Chica", "Cupcake", "Foxy", "Freddy", "Puppet"}
 
-		if ESPBonnieEnabled then
-			print("ESP Bonnie Aktif")
-			-- Create or enable highlight for Bonnie
-			task.spawn(function()
-				local function updateESP()
-					local bonniePath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Bonnie")
-					
-					if bonniePath then
-						-- Check if highlight already exists
-						local existingHighlight = bonniePath:FindFirstChild("BonnieESP")
-						if not existingHighlight then
-							local highlight = Instance.new("Highlight")
-							highlight.Name = "BonnieESP"
-							highlight.Adornee = bonniePath
-							highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Merah
-							highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- Merah
-							highlight.FillTransparency = 0.5
-							highlight.OutlineTransparency = 0
-							highlight.Parent = bonniePath
-							print("ESP Highlight dibuat untuk Bonnie")
-						else
-							existingHighlight.Enabled = true
-						end
-					else
-						warn("Bonnie tidak ditemukan di lokasi yang dimaksud")
-					end
-				end
-				
-				updateESP()
-			end)
-		else
-			print("ESP Bonnie Nonaktif")
-			-- Disable highlight for Bonnie
-			task.spawn(function()
-				local bonniePath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Bonnie")
-				if bonniePath then
-					local existingHighlight = bonniePath:FindFirstChild("BonnieESP")
-					if existingHighlight then
-						existingHighlight.Enabled = false
-					end
-				end
-			end)
-		end
-	end,
+local Toggle = MainTab:CreateToggle({
+    Name = "ESP All Animatronics (Merah)",
+    CurrentValue = false,
+    Flag = "ToggleAllAnimESP",
+    Callback = function(Value)
+        _G.ESPAllEnabled = Value -- Variabel global untuk status toggle
+
+        if _G.ESPAllEnabled then
+            print("Semua ESP Animatronics Aktif")
+            task.spawn(function()
+                -- Path folder utama
+                local animFolder = workspace:FindFirstChild("Game") 
+                    and workspace.Game:FindFirstChild("Animatronics") 
+                    and workspace.Game.Animatronics:FindFirstChild("Animatronics")
+
+                if animFolder then
+                    for _, name in pairs(animatronicsNames) do
+                        local target = animFolder:FindFirstChild(name)
+                        if target then
+                            local espName = name .. "ESP"
+                            local highlight = target:FindFirstChild(espName)
+                            
+                            if not highlight then
+                                highlight = Instance.new("Highlight")
+                                highlight.Name = espName
+                                highlight.Adornee = target
+                                highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                                highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+                                highlight.FillTransparency = 0.5
+                                highlight.OutlineTransparency = 0
+                                highlight.Parent = target
+                            else
+                                highlight.Enabled = true
+                            end
+                        end
+                    end
+                else
+                    warn("Folder Animatronics tidak ditemukan!")
+                end
+            end)
+        else
+            print("Semua ESP Animatronics Nonaktif")
+            task.spawn(function()
+                local animFolder = workspace:FindFirstChild("Game") 
+                    and workspace.Game:FindFirstChild("Animatronics") 
+                    and workspace.Game.Animatronics:FindFirstChild("Animatronics")
+
+                if animFolder then
+                    for _, name in pairs(animatronicsNames) do
+                        local target = animFolder:FindFirstChild(name)
+                        if target then
+                            local highlight = target:FindFirstChild(name .. "ESP")
+                            if highlight then
+                                highlight.Enabled = false
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end,
+})
+-- ESP Fuse Toggle
+local Toggle = MainTab:CreateToggle({
+    Name = "ESP Fuse (Hijau)",
+    CurrentValue = false,
+    Flag = "ToggleFuseESP",
+    Callback = function(Value)
+        ESPFuseEnabled = Value
+
+        if ESPFuseEnabled then
+            print("ESP Fuse Aktif")
+            task.spawn(function()
+                -- Mengambil semua objek di Workspace
+                for _, item in pairs(workspace:GetChildren()) do
+                    -- Cek jika nama objek adalah "Fuse"
+                    if item.Name == "Fuse" then
+                        local existingHighlight = item:FindFirstChild("FuseESP")
+                        
+                        if not existingHighlight then
+                            local highlight = Instance.new("Highlight")
+                            highlight.Name = "FuseESP"
+                            highlight.Adornee = item
+                            highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                            highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+                            highlight.FillTransparency = 0.5
+                            highlight.OutlineTransparency = 0
+                            highlight.Parent = item
+                            print("Highlight dibuat untuk " .. item.Name)
+                        else
+                            existingHighlight.Enabled = true
+                        end
+                    end
+                end
+            end)
+        else
+            print("ESP Fuse Nonaktif")
+            task.spawn(function()
+                for _, item in pairs(workspace:GetChildren()) do
+                    if item.Name == "Fuse" then
+                        local existingHighlight = item:FindFirstChild("FuseESP")
+                        if existingHighlight then
+                            existingHighlight.Enabled = false
+                        end
+                    end
+                end
+            end)
+        end
+    end,
 })
 
--- ESP Chica Toggle
+-- Daftar item dan nama unik untuk ESP-nya
+local itemsToESP = {
+    {Path = workspace:FindFirstChild("Phillips screwdriver"), Name = "ScrewdriverESP"},
+    {Path = workspace:FindFirstChild("Photo Camera"), Name = "CameraESP"},
+    {Path = workspace:FindFirstChild("Pliers"), Name = "PliersESP"}
+}
+
 local Toggle = MainTab:CreateToggle({
-	Name = "ESP Chica (Merah)",
-	CurrentValue = false,
-	Flag = "ToggleChicaESP",
-	Callback = function(Value)
-		ESPChicaEnabled = Value
+    Name = "ESP Quest Items (Kuning)",
+    CurrentValue = false,
+    Flag = "ToggleItemsESP",
+    Callback = function(Value)
+        _G.ItemsESPEnabled = Value
 
-		if ESPChicaEnabled then
-			print("ESP Chica Aktif")
-			task.spawn(function()
-				local function updateESP()
-					local chicaPath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Chica")
-					
-					if chicaPath then
-						local existingHighlight = chicaPath:FindFirstChild("ChicaESP")
-						if not existingHighlight then
-							local highlight = Instance.new("Highlight")
-							highlight.Name = "ChicaESP"
-							highlight.Adornee = chicaPath
-							highlight.FillColor = Color3.fromRGB(255, 0, 0)
-							highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-							highlight.FillTransparency = 0.5
-							highlight.OutlineTransparency = 0
-							highlight.Parent = chicaPath
-							print("ESP Highlight dibuat untuk Chica")
-						else
-							existingHighlight.Enabled = true
-						end
-					else
-						warn("Chica tidak ditemukan di lokasi yang dimaksud")
-					end
-				end
-				
-				updateESP()
-			end)
-		else
-			print("ESP Chica Nonaktif")
-			task.spawn(function()
-				local chinaPath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Chica")
-				if chinaPath then
-					local existingHighlight = chinaPath:FindFirstChild("ChicaESP")
-					if existingHighlight then
-						existingHighlight.Enabled = false
-					end
-				end
-			end)
-		end
-	end,
-})
-
--- ESP Cupcake Toggle
-local Toggle = MainTab:CreateToggle({
-	Name = "ESP Cupcake (Merah)",
-	CurrentValue = false,
-	Flag = "ToggleCupcakeESP",
-	Callback = function(Value)
-		ESPCupcakeEnabled = Value
-
-		if ESPCupcakeEnabled then
-			print("ESP Cupcake Aktif")
-			task.spawn(function()
-				local function updateESP()
-					local cupcakePath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Cupcake")
-					
-					if cupcakePath then
-						local existingHighlight = cupcakePath:FindFirstChild("CupcakeESP")
-						if not existingHighlight then
-							local highlight = Instance.new("Highlight")
-							highlight.Name = "CupcakeESP"
-							highlight.Adornee = cupcakePath
-							highlight.FillColor = Color3.fromRGB(255, 0, 0)
-							highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-							highlight.FillTransparency = 0.5
-							highlight.OutlineTransparency = 0
-							highlight.Parent = cupcakePath
-							print("ESP Highlight dibuat untuk Cupcake")
-						else
-							existingHighlight.Enabled = true
-						end
-					else
-						warn("Cupcake tidak ditemukan di lokasi yang dimaksud")
-					end
-				end
-				
-				updateESP()
-			end)
-		else
-			print("ESP Cupcake Nonaktif")
-			task.spawn(function()
-				local cupcakePath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Cupcake")
-				if cupcakePath then
-					local existingHighlight = cupcakePath:FindFirstChild("CupcakeESP")
-					if existingHighlight then
-						existingHighlight.Enabled = false
-					end
-				end
-			end)
-		end
-	end,
-})
-
--- ESP Foxy Toggle
-local Toggle = MainTab:CreateToggle({
-	Name = "ESP Foxy (Merah)",
-	CurrentValue = false,
-	Flag = "ToggleFoxyESP",
-	Callback = function(Value)
-		ESPFoxyEnabled = Value
-
-		if ESPFoxyEnabled then
-			print("ESP Foxy Aktif")
-			task.spawn(function()
-				local function updateESP()
-					local foxyPath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Foxy")
-					
-					if foxyPath then
-						local existingHighlight = foxyPath:FindFirstChild("FoxyESP")
-						if not existingHighlight then
-							local highlight = Instance.new("Highlight")
-							highlight.Name = "FoxyESP"
-							highlight.Adornee = foxyPath
-							highlight.FillColor = Color3.fromRGB(255, 0, 0)
-							highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-							highlight.FillTransparency = 0.5
-							highlight.OutlineTransparency = 0
-							highlight.Parent = foxyPath
-							print("ESP Highlight dibuat untuk Foxy")
-						else
-							existingHighlight.Enabled = true
-						end
-					else
-						warn("Foxy tidak ditemukan di lokasi yang dimaksud")
-					end
-				end
-				
-				updateESP()
-			end)
-		else
-			print("ESP Foxy Nonaktif")
-			task.spawn(function()
-				local foxyPath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Foxy")
-				if foxyPath then
-					local existingHighlight = foxyPath:FindFirstChild("FoxyESP")
-					if existingHighlight then
-						existingHighlight.Enabled = false
-					end
-				end
-			end)
-		end
-	end,
-})
-
--- ESP Freddy Toggle
-local Toggle = MainTab:CreateToggle({
-	Name = "ESP Freddy (Merah)",
-	CurrentValue = false,
-	Flag = "ToggleFreddyESP",
-	Callback = function(Value)
-		ESPFreddyEnabled = Value
-
-		if ESPFreddyEnabled then
-			print("ESP Freddy Aktif")
-			task.spawn(function()
-				local function updateESP()
-					local freddyPath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Freddy")
-					
-					if freddyPath then
-						local existingHighlight = freddyPath:FindFirstChild("FreddyESP")
-						if not existingHighlight then
-							local highlight = Instance.new("Highlight")
-							highlight.Name = "FreddyESP"
-							highlight.Adornee = freddyPath
-							highlight.FillColor = Color3.fromRGB(255, 0, 0)
-							highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-							highlight.FillTransparency = 0.5
-							highlight.OutlineTransparency = 0
-							highlight.Parent = freddyPath
-							print("ESP Highlight dibuat untuk Freddy")
-						else
-							existingHighlight.Enabled = true
-						end
-					else
-						warn("Freddy tidak ditemukan di lokasi yang dimaksud")
-					end
-				end
-				
-				updateESP()
-			end)
-		else
-			print("ESP Freddy Nonaktif")
-			task.spawn(function()
-				local freddyPath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Freddy")
-				if freddyPath then
-					local existingHighlight = freddyPath:FindFirstChild("FreddyESP")
-					if existingHighlight then
-						existingHighlight.Enabled = false
-					end
-				end
-			end)
-		end
-	end,
-})
-
--- ESP Puppet Toggle
-local Toggle = MainTab:CreateToggle({
-	Name = "ESP Puppet (Merah)",
-	CurrentValue = false,
-	Flag = "TogglePuppetESP",
-	Callback = function(Value)
-		ESPPuppetEnabled = Value
-
-		if ESPPuppetEnabled then
-			print("ESP Puppet Aktif")
-			task.spawn(function()
-				local function updateESP()
-					local puppetPath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Puppet")
-					
-					if puppetPath then
-						local existingHighlight = puppetPath:FindFirstChild("PuppetESP")
-						if not existingHighlight then
-							local highlight = Instance.new("Highlight")
-							highlight.Name = "PuppetESP"
-							highlight.Adornee = puppetPath
-							highlight.FillColor = Color3.fromRGB(255, 0, 0)
-							highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-							highlight.FillTransparency = 0.5
-							highlight.OutlineTransparency = 0
-							highlight.Parent = puppetPath
-							print("ESP Highlight dibuat untuk Puppet")
-						else
-							existingHighlight.Enabled = true
-						end
-					else
-						warn("Puppet tidak ditemukan di lokasi yang dimaksud")
-					end
-				end
-				
-				updateESP()
-			end)
-		else
-			print("ESP Puppet Nonaktif")
-			task.spawn(function()
-				local puppetPath = workspace:FindFirstChild("Game"):FindFirstChild("Animatronics"):FindFirstChild("Animatronics"):FindFirstChild("Puppet")
-				if puppetPath then
-					local existingHighlight = puppetPath:FindFirstChild("PuppetESP")
-					if existingHighlight then
-						existingHighlight.Enabled = false
-					end
-				end
-			end)
-		end
-	end,
+        if _G.ItemsESPEnabled then
+            print("ESP Items Aktif")
+            for _, itemData in pairs(itemsToESP) do
+                local obj = itemData.Path
+                if obj then
+                    local existingHighlight = obj:FindFirstChild(itemData.Name)
+                    if not existingHighlight then
+                        local highlight = Instance.new("Highlight")
+                        highlight.Name = itemData.Name
+                        highlight.Adornee = obj
+                        highlight.FillColor = Color3.fromRGB(255, 255, 0) -- Warna Kuning agar beda dengan Animatronics
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 0)
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineTransparency = 0
+                        highlight.Parent = obj
+                    else
+                        existingHighlight.Enabled = true
+                    end
+                else
+                    warn("Item " .. itemData.Name .. " tidak ditemukan di Workspace!")
+                end
+            end
+        else
+            print("ESP Items Nonaktif")
+            for _, itemData in pairs(itemsToESP) do
+                local obj = itemData.Path
+                if obj then
+                    local existingHighlight = obj:FindFirstChild(itemData.Name)
+                    if existingHighlight then
+                        existingHighlight.Enabled = false
+                    end
+                end
+            end
+        end
+    end,
 })
