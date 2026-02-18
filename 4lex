@@ -203,3 +203,56 @@ local Toggle = MainTab:CreateToggle({
         end
     end,
 })
+
+local Toggle = MainTab:CreateToggle({
+    Name = "ESP Bau Items (Biru)",
+    CurrentValue = false,
+    Flag = "ToggleBauESP",
+    Callback = function(Value)
+        local bauFolder = workspace:FindFirstChild("Map") 
+            and workspace.Map:FindFirstChild("Baus") 
+            and workspace.Map.Baus:FindFirstChild("Bau")
+
+        if not bauFolder then
+            warn("Folder workspace.Map.Baus.Bau tidak ditemukan!")
+            return
+        end
+
+        local children = bauFolder:GetChildren()
+        -- Daftar indeks yang kamu minta: 1, 2, dan 3
+        local targets = {children[1], children[2], children[3]}
+
+        if Value then
+            print("ESP Bau Aktif")
+            for i, target in pairs(targets) do
+                if target then
+                    local espName = "BauESP_" .. i
+                    local highlight = target:FindFirstChild(espName)
+                    
+                    if not highlight then
+                        highlight = Instance.new("Highlight")
+                        highlight.Name = espName
+                        highlight.Adornee = target
+                        highlight.FillColor = Color3.fromRGB(0, 0, 255) -- Biru
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Outline Putih agar kontras
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineTransparency = 0
+                        highlight.Parent = target
+                    else
+                        highlight.Enabled = true
+                    end
+                end
+            end
+        else
+            print("ESP Bau Nonaktif")
+            for i, target in pairs(targets) do
+                if target then
+                    local highlight = target:FindFirstChild("BauESP_" .. i)
+                    if highlight then
+                        highlight.Enabled = false
+                    end
+                end
+            end
+        end
+    end,
+})
