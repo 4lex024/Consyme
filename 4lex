@@ -104,33 +104,31 @@ local Toggle = MainTab:CreateToggle({
         end
     end,
 })
--- ESP Fuse Toggle
 local Toggle = MainTab:CreateToggle({
-    Name = "ESP Fuse (Hijau)",
+    Name = "ESP Fuse (Hijau - All 3)",
     CurrentValue = false,
     Flag = "ToggleFuseESP",
     Callback = function(Value)
-        ESPFuseEnabled = Value
+        _G.FuseESPEnabled = Value
 
-        if ESPFuseEnabled then
-            print("ESP Fuse Aktif")
+        if _G.FuseESPEnabled then
+            print("Mencari semua Fuse...")
             task.spawn(function()
-                -- Mengambil semua objek di Workspace
-                for _, item in pairs(workspace:GetChildren()) do
-                    -- Cek jika nama objek adalah "Fuse"
+                -- GetDescendants mencari ke DALAM folder/model manapun
+                for _, item in pairs(workspace:GetDescendants()) do
                     if item.Name == "Fuse" then
-                        local existingHighlight = item:FindFirstChild("FuseESP")
+                        local existingHighlight = item:FindFirstChild("FuseHighlight")
                         
                         if not existingHighlight then
                             local highlight = Instance.new("Highlight")
-                            highlight.Name = "FuseESP"
+                            highlight.Name = "FuseHighlight"
                             highlight.Adornee = item
-                            highlight.FillColor = Color3.fromRGB(0, 255, 0)
-                            highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+                            highlight.FillColor = Color3.fromRGB(0, 255, 0) -- Hijau
+                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
                             highlight.FillTransparency = 0.5
                             highlight.OutlineTransparency = 0
                             highlight.Parent = item
-                            print("Highlight dibuat untuk " .. item.Name)
+                            print("Fuse ditemukan dan diberi Highlight!")
                         else
                             existingHighlight.Enabled = true
                         end
@@ -139,16 +137,14 @@ local Toggle = MainTab:CreateToggle({
             end)
         else
             print("ESP Fuse Nonaktif")
-            task.spawn(function()
-                for _, item in pairs(workspace:GetChildren()) do
-                    if item.Name == "Fuse" then
-                        local existingHighlight = item:FindFirstChild("FuseESP")
-                        if existingHighlight then
-                            existingHighlight.Enabled = false
-                        end
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item.Name == "Fuse" then
+                    local existingHighlight = item:FindFirstChild("FuseHighlight")
+                    if existingHighlight then
+                        existingHighlight.Enabled = false
                     end
                 end
-            end)
+            end
         end
     end,
 })
@@ -161,40 +157,52 @@ local itemsToESP = {
 }
 
 local Toggle = MainTab:CreateToggle({
-    Name = "ESP Quest Items (Kuning)",
+    Name = "ESP Tools (Kuning)",
     CurrentValue = false,
-    Flag = "ToggleItemsESP",
+    Flag = "ToggleToolsESP",
     Callback = function(Value)
-        _G.ItemsESPEnabled = Value
+        -- Daftar item yang ingin diberi ESP
+        local toolNames = {
+            "Pliers", 
+            "Phillips screwdriver", 
+            "Photo Camera"
+        }
 
-        if _G.ItemsESPEnabled then
-            print("ESP Items Aktif")
-            for _, itemData in pairs(itemsToESP) do
-                local obj = itemData.Path
-                if obj then
-                    local existingHighlight = obj:FindFirstChild(itemData.Name)
-                    if not existingHighlight then
-                        local highlight = Instance.new("Highlight")
-                        highlight.Name = itemData.Name
-                        highlight.Adornee = obj
-                        highlight.FillColor = Color3.fromRGB(255, 255, 0) -- Warna Kuning agar beda dengan Animatronics
-                        highlight.OutlineColor = Color3.fromRGB(255, 255, 0)
-                        highlight.FillTransparency = 0.5
-                        highlight.OutlineTransparency = 0
-                        highlight.Parent = obj
+        if Value then
+            print("ESP Tools Aktif")
+            task.spawn(function()
+                for _, name in pairs(toolNames) do
+                    -- Mencari item langsung di workspace
+                    local item = workspace:FindFirstChild(name)
+                    
+                    if item then
+                        local espName = name .. "_ESP"
+                        local existingHighlight = item:FindFirstChild(espName)
+                        
+                        if not existingHighlight then
+                            local highlight = Instance.new("Highlight")
+                            highlight.Name = espName
+                            highlight.Adornee = item
+                            highlight.FillColor = Color3.fromRGB(255, 255, 0) -- Kuning
+                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Putih
+                            highlight.FillTransparency = 0.4
+                            highlight.OutlineTransparency = 0
+                            highlight.Parent = item
+                        else
+                            existingHighlight.Enabled = true
+                        end
                     else
-                        existingHighlight.Enabled = true
+                        warn("Item " .. name .. " tidak ditemukan di Workspace!")
                     end
-                else
-                    warn("Item " .. itemData.Name .. " tidak ditemukan di Workspace!")
                 end
-            end
+            end)
         else
-            print("ESP Items Nonaktif")
-            for _, itemData in pairs(itemsToESP) do
-                local obj = itemData.Path
-                if obj then
-                    local existingHighlight = obj:FindFirstChild(itemData.Name)
+            print("ESP Tools Nonaktif")
+            -- Mematikan semua highlight pada item tersebut
+            for _, name in pairs(toolNames) do
+                local item = workspace:FindFirstChild(name)
+                if item then
+                    local existingHighlight = item:FindFirstChild(name .. "_ESP")
                     if existingHighlight then
                         existingHighlight.Enabled = false
                     end
